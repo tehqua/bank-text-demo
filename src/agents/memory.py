@@ -59,6 +59,9 @@ class Memory:
     def get_recent_actions(self, n=10):
         return self.history["actions"][-n:]
 
+    def get_all_actions(self):
+        return self.history["actions"]
+
     def get_action_success_rate(self, action_type=None):
         actions = self.history["actions"]
 

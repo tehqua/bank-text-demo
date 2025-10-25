@@ -19,6 +19,7 @@ from src.agents.monitor import Monitor
 from src.agents.planner import Planner
 from src.agents.executor import Executor
 from src.agents.memory import Memory
+from src.agents.coordinator import MultiAgentCoordinator
 from config.settings import TOPIC_MODEL_DIR, SENTIMENT_MODEL_DIR, RAW_DIR
 from src.utils.export import export_to_csv
 from src.chatbot.agent import ChatbotAgent
@@ -33,6 +34,9 @@ if 'chatbot_agent' not in st.session_state:
 
 if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = []
+
+if 'coordinator' not in st.session_state:
+    st.session_state.coordinator = None
 
 st.title("Bank Text Analysis Demo")
 st.markdown("Upload CSV, analyze topics & sentiment, visualize results")
@@ -247,57 +251,105 @@ with tab4:
                     st.error("CSV must have 'comment' and 'topic_label' columns")
 
 with tab5:
-    st.header("Agentic AI - Monitoring & Planning")
+    st.header("🤖 True Agentic AI - Multi-Agent System")
+    st.markdown("**Autonomous agents with continuous learning and inter-agent communication**")
 
     if st.session_state.df_pandas is not None:
         df_pandas = st.session_state.df_pandas
 
-        if st.button("Run Monitoring"):
-            with st.spinner("Monitoring..."):
-                monitor = Monitor()
-                current_metrics = monitor.calculate_current_metrics(df_pandas)
+        if st.session_state.coordinator is None:
+            st.session_state.coordinator = MultiAgentCoordinator()
+            st.success("✅ Multi-Agent System initialized with 7 agents")
 
-                anomalies = monitor.detect_anomalies(current_metrics)
+        coordinator = st.session_state.coordinator
 
-                if anomalies:
-                    st.warning(f"Detected {len(anomalies)} anomalies")
-                    for anomaly in anomalies:
-                        st.error(f"- {anomaly['type']}: {anomaly['message']}")
-                else:
-                    st.success("No anomalies detected")
+        col1, col2 = st.columns(2)
 
-                goal_manager = GoalManager()
-                violations = goal_manager.check_goal_violations(current_metrics)
+        with col1:
+            st.subheader("🚀 Autonomous Actions")
 
-                if violations:
-                    st.warning(f"Detected {len(violations)} goal violations")
-                    for v in violations:
-                        st.error(f"- {v['goal']}: {v['reason']}")
-                else:
-                    st.success("All KPIs within thresholds")
+            if st.button("Run Full Agentic Workflow", use_container_width=True):
+                with st.spinner("Running autonomous multi-agent workflow..."):
+                    results = coordinator.run_full_agentic_workflow(df_pandas)
 
-                if anomalies or violations:
-                    planner = Planner()
-                    plan = planner.create_plan(violations, anomalies)
-                    plan = planner.prioritize_actions(plan)
+                    st.success(f"✅ Workflow completed: {results['status']}")
 
-                    st.subheader("Generated Plan")
-                    for action in plan['actions']:
-                        st.info(f"{action['priority'].upper()}: {action['type']} - {action['description']}")
+                    for step in results['steps']:
+                        if step['status'] == 'success':
+                            st.info(f"✓ {step['step']}")
+                        else:
+                            st.warning(f"⚠ {step['step']}: {step.get('status')}")
 
-                    if st.button("Execute Plan (Dry Run)"):
-                        executor = Executor()
-                        results = executor.execute_plan(plan, dry_run=True)
-                        st.success("Plan executed (dry run)")
-                        for result in results:
-                            st.write(f"- {result['action']}: {result['message']}")
+            if st.button("Trigger Continuous Improvement", use_container_width=True):
+                with st.spinner("Triggering continuous learning cycle..."):
+                    results = coordinator.trigger_continuous_improvement(df_pandas)
 
-                if st.button("Save as Baseline"):
-                    monitor.save_baseline(current_metrics)
-                    st.success("Baseline saved")
+                    st.success("✅ Continuous improvement triggered")
+                    st.json(results)
+
+        with col2:
+            st.subheader("📊 System Status")
+
+            if st.button("Get System Status", use_container_width=True):
+                status = coordinator.get_system_status()
+
+                st.metric("Active Agents", status['coordinator']['agents_count'])
+                st.metric("Model Cards", status['agents']['model_cards']['total_models'])
+                st.metric("Total Goals", status['agents']['goals']['total_goals'])
+
+                with st.expander("📈 Learning Status"):
+                    learning = status['agents']['learning']
+                    st.write(f"**Last Cycle:** {learning.get('last_cycle', 'N/A')}")
+                    st.write(f"**Next Cycle:** {learning.get('next_cycle_in', 'N/A')}")
+                    st.write(f"**Recent Improvements:**")
+                    for imp in learning.get('recent_improvements', []):
+                        st.write(f"  - {imp.get('model_type')}: {imp.get('improvement', 0):+.3f}")
+
+        st.markdown("---")
+
+        st.subheader("📡 Agent Communications")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("View Agent Messages"):
+                messages = coordinator.get_agent_communications(limit=15)
+
+                st.markdown("**Recent Inter-Agent Messages:**")
+                for msg in messages[-10:]:
+                    st.text(f"[{msg['priority']}] {msg['sender']} → {msg['topic']}")
+
+        with col2:
+            if st.button("View Coordination History"):
+                history = coordinator.get_coordination_history(limit=10)
+
+                st.markdown("**Recent Coordination Actions:**")
+                for event in history:
+                    st.text(f"{event.get('action')} at {event.get('timestamp')}")
+
+        st.markdown("---")
+
+        st.subheader("🎯 Model Cards & Performance")
+
+        if st.button("View All Model Cards"):
+            model_card_agent = coordinator.model_card_agent
+            summary = model_card_agent.get_performance_summary()
+
+            st.metric("Total Models", summary['total_models'])
+
+            if summary['models']:
+                st.markdown("**Model Performance:**")
+                for model_info in summary['models']:
+                    with st.expander(f"📦 {model_info['model_name']} ({model_info['model_type']})"):
+                        col1, col2, col3 = st.columns(3)
+                        col1.metric("Accuracy", f"{model_info['accuracy']:.3f}")
+                        col2.metric("F1 Score", f"{model_info['f1_score']:.3f}")
+                        col3.metric("Status", model_info['status'])
+            else:
+                st.info("No model cards yet. Train a model to create model cards automatically.")
 
     else:
-        st.info("Upload and analyze data first to use Agentic AI features")
+        st.info("📁 Upload and analyze data first to activate the Multi-Agent System")
 
 with tab6:
     st.header("💬 AI Chatbot Assistant")

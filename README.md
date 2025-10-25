@@ -24,6 +24,7 @@
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
 - [Usage Guide](#-usage-guide)
+- [Agentic AI System](#-agentic-ai-system)
 - [Project Structure](#-project-structure)
 - [Configuration](#-configuration)
 - [AI Chatbot](#-ai-chatbot)
@@ -75,20 +76,28 @@
 
 ### Advanced Features
 
-- 🤖 **AI Chatbot Assistant** (NEW!):
+- 🤖 **AI Chatbot Assistant**:
   - Natural language interface (Vietnamese)
   - 10+ tools: query data, train models, export reports, create alerts
   - Powered by Ollama (100% free & local)
-- 🎯 **Agentic AI Layer**:
-  - Goal-driven KPI monitoring
-  - Auto anomaly detection (drift, spikes)
-  - Action planning & execution
-  - Alert notifications (Email, Slack, Jira)
+- 🚀 **True Agentic AI System** (NEW v2.0!):
+  - **7 Autonomous Agents** working together:
+    - ModelCardAgent: Manages model metadata & performance tracking
+    - LearningAgent: Orchestrates continuous improvement
+    - AutoTrainer: Autonomous model retraining
+    - GoalManager: KPI monitoring & violation detection
+    - Monitor: Anomaly & drift detection
+    - Planner: Action planning from violations
+    - Executor: Executes planned actions
+  - **Message Bus**: Event-driven inter-agent communication
+  - **Continuous Learning**: Auto-detects degradation & triggers retraining
+  - **Active Learning**: Identifies uncertain predictions for labeling
+  - **Model Cards**: Full model lineage & performance history
 - 📊 **MLflow Integration**:
   - Experiment tracking
   - Model versioning & registry
   - Metrics visualization
-- 🔄 **Retraining Pipeline**: Upload labeled data to retrain models
+- 🔄 **Auto-Retraining Pipeline**: Models improve continuously without manual intervention
 
 ---
 
@@ -269,20 +278,48 @@ Nhân viên tư vấn tốt,Customer Service
 
 Upload → Train
 
-### Tab 5: Agentic AI
+### Tab 5: 🤖 True Agentic AI - Multi-Agent System
 
-**Monitoring:**
-1. Click "Run Monitoring"
-2. View anomalies (drift, spikes)
-3. View KPI violations
-4. Auto-generate action plan
-5. Execute plan (dry run / live)
+**Autonomous Workflows:**
 
-**Features:**
-- Sentiment drift detection
-- Negative spike alerts
-- Auto-retrain triggers
-- Email/Slack notifications
+1. **Run Full Agentic Workflow**
+   - Initializes 7 autonomous agents
+   - Stores baseline metrics
+   - Checks goal violations
+   - Detects anomalies
+   - Creates and executes action plans
+   - Runs learning cycle if due
+   - Reviews all model cards
+
+2. **Trigger Continuous Improvement**
+   - Forces immediate learning cycle
+   - Processes training queue
+   - Identifies uncertain samples for labeling
+   - Updates performance baselines
+
+3. **Get System Status**
+   - View active agents (7 total)
+   - Monitor model cards
+   - Check learning status
+   - View recent improvements
+
+4. **Agent Communications**
+   - View inter-agent messages
+   - Monitor coordination history
+   - Audit message bus events
+
+5. **Model Cards & Performance**
+   - View all trained models
+   - Track performance history
+   - Compare model versions
+   - Monitor degradation
+
+**Key Features:**
+- ✨ Event-driven agent communication via Message Bus
+- 🔄 Continuous learning with auto-retraining
+- 🎯 Active learning for uncertain predictions
+- 📊 Model cards with full lineage tracking
+- 🚨 Auto-detection of performance degradation
 
 ### Tab 6: 💬 AI Chatbot
 
@@ -308,6 +345,99 @@ Upload → Train
 - Full analysis pipeline
 
 See [CHATBOT_GUIDE.md](CHATBOT_GUIDE.md) for details.
+
+---
+
+## 🤖 Agentic AI System
+
+### Architecture Overview
+
+The system implements **True Agentic AI** with 7 autonomous agents communicating via a Message Bus:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Message Bus                           │
+│         (Event-Driven Communication Layer)               │
+└─────────────────────────────────────────────────────────┘
+        ▲           ▲           ▲           ▲
+        │           │           │           │
+┌───────┴─────┐ ┌───┴───────┐ ┌─┴─────────┐ ┌─────┴──────┐
+│ModelCard    │ │Learning   │ │Auto       │ │Goal        │
+│Agent        │ │Agent      │ │Trainer    │ │Manager     │
+└─────────────┘ └───────────┘ └───────────┘ └────────────┘
+        ▲           ▲           ▲
+        │           │           │
+┌───────┴─────┐ ┌───┴───────┐ ┌─┴─────────┐
+│Monitor      │ │Planner    │ │Executor   │
+│Agent        │ │Agent      │ │Agent      │
+└─────────────┘ └───────────┘ └───────────┘
+```
+
+### The 7 Agents
+
+| Agent | Responsibility | Key Events |
+|-------|---------------|------------|
+| **ModelCardAgent** | Manages model metadata & performance tracking | `model.trained`, `model.degradation_detected` |
+| **LearningAgent** | Orchestrates continuous improvement cycles | `learning.cycle_completed`, `learning.improvement_detected` |
+| **AutoTrainer** | Autonomous model retraining | `training.queued`, `model.trained` |
+| **GoalManager** | Monitors KPIs and detects violations | `goals.violations_detected` |
+| **Monitor** | Anomaly & drift detection | `monitor.anomalies_detected` |
+| **Planner** | Creates action plans from violations | `plan.created` |
+| **Executor** | Executes planned actions | `action.executed` |
+
+### Key Features
+
+**1. Message Bus Communication**
+- Pub/Sub pattern for loose coupling
+- Priority-based message queue (LOW, MEDIUM, HIGH, CRITICAL)
+- Request/Response pattern with timeout
+- Full message history for auditing
+
+**2. Continuous Learning**
+- Automatic performance degradation detection (>10% drop)
+- Scheduled learning cycles (default: 24 hours)
+- Auto-retraining when degradation detected
+- Performance baseline tracking
+
+**3. Active Learning**
+- Identifies uncertain predictions (confidence < 70%)
+- Three sampling strategies:
+  - Confidence-based sampling
+  - Margin sampling (top1 - top2 probabilities)
+  - Entropy sampling (prediction uncertainty)
+- Suggests samples for human labeling
+
+**4. Model Cards**
+- Full model lineage and metadata
+- Performance history tracking
+- Hyperparameter logging
+- Deployment status tracking
+- Retraining trigger history
+
+### Communication Flow Example
+
+```
+User uploads new data → Analysis complete
+  ↓
+ModelCardAgent evaluates performance
+  ↓
+Performance drops 15% → Publishes: model.degradation_detected
+  ↓
+AutoTrainer receives event → Adds to training queue
+  ↓
+LearningAgent receives event → Triggers immediate cycle
+  ↓
+AutoTrainer retrains model → Publishes: model.trained
+  ↓
+ModelCardAgent creates new card → Publishes: model.card_created
+  ↓
+LearningAgent updates baseline → Publishes: learning.improvement_detected
+```
+
+### Documentation
+
+- **[AGENTIC_AI_GUIDE.md](AGENTIC_AI_GUIDE.md)** - Complete architecture documentation
+- **[AGENTIC_QUICKSTART.md](AGENTIC_QUICKSTART.md)** - Quick start guide (Vietnamese)
 
 ---
 
@@ -344,19 +474,28 @@ bank-text-demo/
 │   │   ├── bubble_chart.py            # Bubble charts
 │   │   └── table_view.py              # Data tables
 │   │
-│   ├── agents/
+│   ├── agents/                        # Agentic AI System (NEW v2.0!)
+│   │   ├── message_bus.py             # Event-driven communication
+│   │   ├── model_card_agent.py        # Model metadata management
+│   │   ├── learning_agent.py          # Continuous learning orchestration
+│   │   ├── coordinator.py             # Multi-agent coordinator
 │   │   ├── goal_manager.py            # KPI goals & tracking
 │   │   ├── monitor.py                 # Anomaly detection
 │   │   ├── planner.py                 # Action planning
 │   │   ├── executor.py                # Action execution
 │   │   └── memory.py                  # Agent memory
 │   │
+│   ├── models/
+│   │   ├── active_learner.py          # Active learning module (NEW!)
+│   │   ├── auto_trainer.py            # Autonomous retraining (NEW!)
+│   │   └── ...
+│   │
 │   ├── alerts/
 │   │   ├── email_sender.py            # Email alerts
 │   │   ├── slack_sender.py            # Slack webhooks
 │   │   └── ticket_creator.py          # Jira integration
 │   │
-│   ├── chatbot/                       # AI Chatbot (NEW!)
+│   ├── chatbot/                       # AI Chatbot
 │   │   ├── ollama_client.py           # Ollama API client
 │   │   ├── tools.py                   # Tool definitions
 │   │   └── agent.py                   # ChatbotAgent
@@ -381,6 +520,8 @@ bank-text-demo/
 │   └── clean_models.py                # Model cleanup
 │
 └── docs/
+    ├── AGENTIC_AI_GUIDE.md            # Agentic AI architecture (NEW!)
+    ├── AGENTIC_QUICKSTART.md          # Agentic AI quick start (NEW!)
     ├── OLLAMA_SETUP.md                # Ollama installation
     ├── CHATBOT_GUIDE.md               # Chatbot usage guide
     └── MLFLOW_GUIDE.md                # MLflow guide

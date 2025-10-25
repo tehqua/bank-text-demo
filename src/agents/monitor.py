@@ -2,12 +2,21 @@ from datetime import datetime
 import json
 from pathlib import Path
 from src.utils.metrics import detect_drift, detect_negative_spike
+from src.agents.message_bus import MessageBus, Message, MessageType, MessagePriority
 from src.utils.logger import default_logger as logger
 
 class Monitor:
-    def __init__(self, baseline_path=None):
+    def __init__(self, baseline_path=None, agent_id="Monitor"):
+        self.agent_id = agent_id
+        self.message_bus = MessageBus()
         self.baseline_path = baseline_path or Path("data/baseline_metrics.json")
         self.baseline = self._load_baseline()
+        self._subscribe_to_events()
+        logger.info(f"{self.agent_id} initialized with message bus")
+
+    def _subscribe_to_events(self):
+        self.message_bus.subscribe("monitor.check_anomalies", self.handle_check_anomalies)
+        self.message_bus.subscribe("monitor.save_baseline", self.handle_save_baseline)
 
     def _load_baseline(self):
         if self.baseline_path.exists():
@@ -90,3 +99,31 @@ class Monitor:
         metrics["timestamp"] = datetime.now().isoformat()
 
         return metrics
+
+    def handle_check_anomalies(self, message: Message):
+        current_metrics = message.payload.get('current_metrics', {})
+        anomalies = self.detect_anomalies(current_metrics)
+        self.message_bus.respond(message, {"anomalies": anomalies})
+
+        if anomalies:
+            self.message_bus.publish(Message(
+                type=MessageType.EVENT,
+                sender=self.agent_id,
+                topic="monitor.anomalies_detected",
+                payload={"anomalies": anomalies, "count": len(anomalies)},
+                priority=MessagePriority.HIGH
+            ))
+
+    def handle_save_baseline(self, message: Message):
+        metrics = message.payload.get('metrics', {})
+        self.save_baseline(metrics)
+        self.message_bus.respond(message, {"status": "success"})
+
+    def store_baseline(self, metrics):
+        self.save_baseline(metrics)
+        self.message_bus.publish(Message(
+            type=MessageType.EVENT,
+            sender=self.agent_id,
+            topic="monitor.baseline_updated",
+            payload={"timestamp": datetime.now().isoformat()}
+        ))
