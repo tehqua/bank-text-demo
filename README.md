@@ -101,9 +101,12 @@ Ngành ngân hàng Việt Nam đang chuyển mạnh sang mô hình **"lấy khá
 4. **Training & deploying ML models** → Tự động retrain khi performance giảm
 5. **Hỗ trợ quyết định sản phẩm** → Insights từ data thực tế khách hàng
 
+🎥 [Video demo](https://github.com/tehqua/bank-text-demo/blob/main/assets/Demo.mp4)
 ---
 
 ## 2. THIẾT KẾ VÀ KIẾN TRÚC DỰ ÁN
+
+![System Diagram](https://raw.githubusercontent.com/tehqua/bank-text-demo/main/assets/diagram.png)
 
 ### 2.1. Tổng quan kiến trúc hệ thống
 
