@@ -645,7 +645,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/bank-text-demo/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/bank-text-demo/discussions)
-- **Email**: your-email@example.com
+- **Email**: lamminhquang0411@gmail.com 
 
 ---
 
